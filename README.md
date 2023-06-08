@@ -14,10 +14,10 @@ This guide provides step-by-step instructions to deploy the Movie Classifier on 
     echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bashrc
     echo 'command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc
     echo 'eval "$(pyenv init -)"' >> ~/.bashrc
-    Then, if you have ~/.profile, ~/.bash_profile or ~/.bash_login, add the commands there as well. If you have none of these, add them to ~/.profile.
     ```
+    Then, if you have ~/.profile, ~/.bash_profile or ~/.bash_login, add the commands there as well. If you have none of these, add them to ~/.profile.
 
-    to add to ~/.profile:
+    To add to ~/.profile:
 
     ```bash
     echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.profile
@@ -25,7 +25,7 @@ This guide provides step-by-step instructions to deploy the Movie Classifier on 
     echo 'eval "$(pyenv init -)"' >> ~/.profile
     ```
 
-    to add to ~/.bash_profile:
+    To add to ~/.bash_profile:
     ```bash
     echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bash_profile
     echo 'command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bash_profile
@@ -44,7 +44,21 @@ This guide provides step-by-step instructions to deploy the Movie Classifier on 
     exec "$SHELL"
     ```
 
-2. Install Python using pyenv
+2. Install Python build dependencies
+   Mac OS X:
+    If you haven't done so, install Xcode Command Line Tools (xcode-select --install) and Homebrew. Then:
+    ```bash
+    brew install openssl readline sqlite3 xz zlib tcl-tk
+    ```
+
+    Ubuntu/Debian/Mint:
+    ```bash
+    sudo apt update; sudo apt install build-essential libssl-dev zlib1g-dev \
+    libbz2-dev libreadline-dev libsqlite3-dev curl \
+    libncursesw5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev
+    ```
+
+3. Install Python using pyenv
 
     List python versions
     ```bash
