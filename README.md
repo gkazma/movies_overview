@@ -118,3 +118,24 @@ This guide provides step-by-step instructions to deploy the Movie Classifier on 
 # Analysis
 
 For the data analysis, model search and baseline models, see the jupyter-notebook.
+
+# Deployment
+
+1. Install Docker
+
+2. Run tensorflow-serving docker with the best model
+    ```bash
+    docker run -t --rm -p 8501:8501 --mount type=bind,source=$(pwd)/models/model/,target=/models/model/ -e MODEL_NAME=model emacski/tensorflow-serving:latest-linux_arm64
+    ```
+
+3. Send a post request
+    ```bash
+    curl -d '{"instances": [[31.993208, 2.3410976, 2.3042428, 0.0, 0.0, 1.7489684, 0.0, 1.2123615, 1.1253109, 1.2693826]]}' \
+    -X POST http://localhost:8501/v1/models/model:predict
+    ```
+
+    for model that takes input text
+    ```bash
+    curl -d '{"instances": [["test"]]}' \
+    -X POST http://localhost:8501/v1/models/model:predict
+    ```

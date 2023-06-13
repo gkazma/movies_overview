@@ -12,6 +12,9 @@ dataset/
 # VS Code
 .vscode/
 
+# TF Models
+models/
+
 # Mac DS Store
 .DS_Store
 
