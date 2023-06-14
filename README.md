@@ -139,3 +139,16 @@ For the data analysis, model search and baseline models, see the jupyter-noteboo
     curl -d '{"instances": [["test"]]}' \
     -X POST http://localhost:8501/v1/models/model:predict
     ```
+
+
+    docker run -t --rm -p 8501:8501 --mount type=bind,source=$(pwd)/models/model/,target=/models/model/ -e MODEL_NAME=model tensorflow/serving
+
+    curl -d '{"instances": ["action action action action", "love love love love"]}' -X POST http://localhost:8501/v1/models/model:predict
+
+# ToDo
+
+- Make data anlysis and cleanup colab
+- Make data clean up python file
+- Make model exploration colab, score baseline 0 predictor, score a few sklearn baseline models
+- Make best model train python file
+- Add instructions for serving either using tensorflow serving docker or using flask app
