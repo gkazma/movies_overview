@@ -3,6 +3,9 @@
 This guide provides step-by-step instructions to deploy the Movie Classifier on a Linux or macOS machine.
 
 ## Prerequisites
+1. Download dataset from and put inside /dataset folder
+
+## Prerequisites
 
 1. Install pyenv
     ```bash
@@ -152,3 +155,24 @@ For the data analysis, model search and baseline models, see the jupyter-noteboo
 - Make model exploration colab, score baseline 0 predictor, score a few sklearn baseline models
 - Make best model train python file
 - Add instructions for serving either using tensorflow serving docker or using flask app
+
+
+jupyter notebook data analysis and cleaning
+divide training and test save as csv
+EXTRA
+
+jupyter model search
+tfidf mlp
+sequential encode as int sequence, or existing embedding, CNN, LSTM, RNN, or better
+EXTRA
+kfold valid
+write into a dataframe every model with each metric
+
+Deploy
+tensorflow serving docker to serve
+Extra
+modify api to match instructions, either by modifying code inside docker or making flask app to call docker rest api
+
+Training
+pyenv conda ou pipenv
+docker
