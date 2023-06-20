@@ -3,176 +3,49 @@
 This guide provides step-by-step instructions to deploy the Movie Classifier on a Linux or macOS machine.
 
 ## Prerequisites
-1. Download dataset from and put inside /dataset folder
+1. Create a /dataset folder at the root of the project directory
 
-## Prerequisites
+2. Download movies_metadata.csv dataset from [here](https://www.kaggle.com/datasets/rounakbanik/the-movies-dataset?select=movies_metadata.csv) and put it inside the /dataset folder
 
-1. Install pyenv
+3. Install conda on your machine by following the installation [instructions](https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html).
+
+4. Create a conda environment from the requirements file as follows:
     ```bash
-    curl https://pyenv.run | bash
+    conda create --name <env> --file requirements.txt
     ```
+5. Install docker by following these [instructions](https://docs.docker.com/engine/install/).
+## Data Preparation
+Prepare the data for training the model, i.e. data cleaning, data preparation and train/test splits by running the data_peparation.py script:
+```bash
+python data_preparation.py
+```
+See the jupyter notebook [data_preparation.ipynb](notebooks/data_preparation.ipynb) for the full data analysis and cleaning steps.
+## Model Training
+Train the best model we found by running the train_model.py script:
+```bash
+python train_model.py
+```
+See the jupyter notebook [model_search.ipynb](notebooks/model_search.ipynb) for the full model search and results.
 
-    Add the commands to ~/.bashrc:
-    ```bash
-    echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bashrc
-    echo 'command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc
-    echo 'eval "$(pyenv init -)"' >> ~/.bashrc
-    ```
-    Then, if you have ~/.profile, ~/.bash_profile or ~/.bash_login, add the commands there as well. If you have none of these, add them to ~/.profile.
+## Deploy the model
+We will use tensorflow-serving docker for serving the model (make sure you have Docker intalled on your machine, see Prerequisites). Run the TensorFlow Serving container pointing it to this model and opening the REST API port (8501):
 
-    To add to ~/.profile:
-
-    ```bash
-    echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.profile
-    echo 'command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.profile
-    echo 'eval "$(pyenv init -)"' >> ~/.profile
-    ```
-
-    To add to ~/.bash_profile:
-    ```bash
-    echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bash_profile
-    echo 'command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bash_profile
-    echo 'eval "$(pyenv init -)"' >> ~/.bash_profile
-    ```
-
-    For Zsh:
-    ```bash
-    echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.zshrc
-    echo 'command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.zshrc
-    echo 'eval "$(pyenv init -)"' >> ~/.zshrc
-    ```
-
-    Restart your shell:
-    ```bash
-    exec "$SHELL"
-    ```
-
-2. Install Python build dependencies
-   Mac OS X:
-    If you haven't done so, install Xcode Command Line Tools (xcode-select --install) and Homebrew. Then:
-    ```bash
-    brew install openssl readline sqlite3 xz zlib tcl-tk
-    ```
-
-    Ubuntu/Debian/Mint:
-    ```bash
-    sudo apt update; sudo apt install build-essential libssl-dev zlib1g-dev \
-    libbz2-dev libreadline-dev libsqlite3-dev curl \
-    libncursesw5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev
-    ```
-
-3. Install Python using pyenv
-
-    List python versions
-    ```bash
-    pyenv install --list
-    ```
-
-    Install latest stable version, for this project we used version 3.11.3
-    ```bash
-    pyenv install 3.11.3
-    ```
-
-## Deployment Steps
-
-### Setup Environment
-
-1. Create a Virtual Environment, we named the environement movies but feel free to use a different name:
-   ```bash
-   pyenv virtualenv 3.11.3 movies
-   ```
-
-2. Activate the Virtual Environment:
-   ```bash
-   pyenv activate movies
-    ```
-
-3. Install Required Packages:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-### Train the model
-
-1. Run the script to train the model. The script will automatically fetch the dataset and train the best model we found.
-    ```bash
-    python train_model.py
-    ```
-
-### Deploy the Flask App
-
-1. Run the Flask Application:
-   ```bash
-   python movies.py
-   ```
-
+On Linux or MacOS using intel chips:
+```bash
+docker run -t --rm -p 8501:8501 --mount type=bind,source=$(pwd)/models/model/,target=/models/model/ -e MODEL_NAME=model tensorflow/serving
+```
+On MacOS using M1 chips:
+```bash
+docker run -t --rm -p 8501:8501 --mount type=bind,source=$(pwd)/models/model/,target=/models/model/ -e MODEL_NAME=model emacski/tensorflow-serving:latest-linux_arm64
+```
 # Sending Requests
 
-1. Send request, for example:
-    ```bash
-    curl -d "overview=A movie about penguins in Antarctica building a spaceship to go to Mars." -X POST http://localhost:8000
-    ```
+Send request, for example:
+```bash
+curl -d '{"instances": ["love love love love"]}' -X POST http://localhost:8501/v1/models/model:predict
+```
 
-2. Example response
-   ```bash
-   {"genre":"Comedy"}
-   ```
-
-# Analysis
-
-For the data analysis, model search and baseline models, see the jupyter-notebook.
-
-# Deployment
-
-1. Install Docker
-
-2. Run tensorflow-serving docker with the best model
-    ```bash
-    docker run -t --rm -p 8501:8501 --mount type=bind,source=$(pwd)/models/model/,target=/models/model/ -e MODEL_NAME=model emacski/tensorflow-serving:latest-linux_arm64
-    ```
-
-3. Send a post request
-    ```bash
-    curl -d '{"instances": [[31.993208, 2.3410976, 2.3042428, 0.0, 0.0, 1.7489684, 0.0, 1.2123615, 1.1253109, 1.2693826]]}' \
-    -X POST http://localhost:8501/v1/models/model:predict
-    ```
-
-    for model that takes input text
-    ```bash
-    curl -d '{"instances": [["test"]]}' \
-    -X POST http://localhost:8501/v1/models/model:predict
-    ```
-
-
-    docker run -t --rm -p 8501:8501 --mount type=bind,source=$(pwd)/models/model/,target=/models/model/ -e MODEL_NAME=model tensorflow/serving
-
-    curl -d '{"instances": ["action action action action", "love love love love"]}' -X POST http://localhost:8501/v1/models/model:predict
-
-# ToDo
-
-- Make data anlysis and cleanup colab
-- Make data clean up python file
-- Make model exploration colab, score baseline 0 predictor, score a few sklearn baseline models
-- Make best model train python file
-- Add instructions for serving either using tensorflow serving docker or using flask app
-
-
-jupyter notebook data analysis and cleaning
-divide training and test save as csv
-EXTRA
-
-jupyter model search
-tfidf mlp
-sequential encode as int sequence, or existing embedding, CNN, LSTM, RNN, or better
-EXTRA
-kfold valid
-write into a dataframe every model with each metric
-
-Deploy
-tensorflow serving docker to serve
-Extra
-modify api to match instructions, either by modifying code inside docker or making flask app to call docker rest api
-
-Training
-pyenv conda ou pipenv
-docker
+Example response
+```bash
+{"predictions": [["Drama", "Romance"]]}
+```
