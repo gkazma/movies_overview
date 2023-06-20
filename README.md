@@ -19,13 +19,13 @@ Prepare the data for training the model, i.e. data cleaning, data preparation an
 ```bash
 python data_preparation.py
 ```
-See the jupyter notebook [data_preparation.ipynb](notebooks/data_preparation.ipynb) for the full data analysis and cleaning steps.
+See the jupyter notebook [data_preparation.ipynb](data_preparation.ipynb) for the full data analysis and cleaning steps.
 ## Model Training
 Train the best model we found by running the train_model.py script:
 ```bash
 python train_model.py
 ```
-See the jupyter notebook [model_search.ipynb](notebooks/model_search.ipynb) for the full model search and results.
+See the jupyter notebook [model_search.ipynb](model_search.ipynb) for the full model search and results.
 
 ## Deploy the model
 We will use tensorflow-serving docker for serving the model (make sure you have Docker intalled on your machine, see Prerequisites). Run the TensorFlow Serving container pointing it to this model and opening the REST API port (8501):
